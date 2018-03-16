@@ -31,6 +31,17 @@
 #	back into education!
 #################################################################################
 
+DESTDIR=/.ucn
+PREFIX=/wiring
+MAKE_OPTIONS="DESTDIR=$DESTDIR PREFIX=$PREFIX"
+MAKE="make $MAKE_OPTIONS"
+
+for dir in "$DESTDIR $DESTDIR/lib $DESTDIR/$PREFIX $DESTDIR/$PREFIX/bin $DESTDIR/$PREFIX/include $DESTDIR/$PREFIX/lib"; do
+    if [ ! -d "$dir" ]; then
+        mkdir -p $dir
+    fi
+done
+
 check_make_ok() {
   if [ $? != 0 ]; then
     echo ""
@@ -47,33 +58,33 @@ sudo=${WIRINGPI_SUDO-sudo}
 
 if [ x$1 = "xclean" ]; then
   cd wiringPi
-  echo -n "wiringPi:   "	; make clean
+  echo -n "wiringPi:   "	; $MAKE clean
   cd ../devLib
-  echo -n "DevLib:     "	; make clean
+  echo -n "DevLib:     "	; $MAKE clean
   cd ../gpio
-  echo -n "gpio:       "	; make clean
+  echo -n "gpio:       "	; $MAKE clean
   cd ../examples
-  echo -n "Examples:   "	; make clean
+  echo -n "Examples:   "	; $MAKE clean
   cd Gertboard
-  echo -n "Gertboard:  "	; make clean
+  echo -n "Gertboard:  "	; $MAKE clean
   cd ../PiFace
-  echo -n "PiFace:     "	; make clean
+  echo -n "PiFace:     "	; $MAKE clean
   cd ../q2w
-  echo -n "Quick2Wire: "	; make clean
+  echo -n "Quick2Wire: "	; $MAKE clean
   cd ../PiGlow
-  echo -n "PiGlow:     "	; make clean
+  echo -n "PiGlow:     "	; $MAKE clean
   cd ../scrollPhat
-  echo -n "scrollPhat: "	; make clean
+  echo -n "scrollPhat: "	; $MAKE clean
   exit
 fi
 
 if [ x$1 = "xuninstall" ]; then
   cd wiringPi
-  echo -n "wiringPi: " ; $sudo make uninstall
+  echo -n "wiringPi: " ; $sudo $MAKE uninstall
   cd ../devLib
-  echo -n "DevLib:   " ; $sudo make uninstall
+  echo -n "DevLib:   " ; $sudo $MAKE uninstall
   cd ../gpio
-  echo -n "gpio:     " ; $sudo make uninstall
+  echo -n "gpio:     " ; $sudo $MAKE uninstall
   exit
 fi
 
@@ -84,21 +95,21 @@ if [ x$1 = "xdebian" ]; then
   cd debian-template/wiringPi
   rm -rf usr
   cd $here/wiringPi
-  make install-deb
+  $MAKE install-deb
   cd $here/devLib
-  make install-deb INCLUDE='-I. -I../wiringPi'
+  $MAKE install-deb INCLUDE='-I. -I../wiringPi'
   cd $here/gpio
-  make install-deb INCLUDE='-I../wiringPi -I../devLib' LDFLAGS=-L../debian-template/wiringPi/usr/lib
+  $MAKE install-deb INCLUDE='-I../wiringPi -I../devLib' LDFLAGS=-L../debian-template/wiringPi/usr/lib
   cd $here/debian-template
   fakeroot dpkg-deb --build wiringPi
   mv wiringPi.deb  wiringpi-`cat $here/VERSION`-1.deb
   exit
 fi
 
-if [ x$1 != "x" ]; then
-  echo "Usage: $0 [clean | uninstall]"
-  exit 1
-fi
+#if [ x$1 != "x" ]; then
+#  echo "Usage: $0 [clean | uninstall]"
+#  exit 1
+#fi
 
   echo "wiringPi Build script"
   echo "====================="
@@ -125,53 +136,53 @@ fi
   echo
   echo "WiringPi Library"
   cd wiringPi
-  $sudo make uninstall
+  $sudo $MAKE uninstall
   if [ x$1 = "xstatic" ]; then
-    make -j5 static
+    $MAKE -j5 static
     check_make_ok
-    $sudo make install-static
+    $sudo $MAKE install-static
   else
-    make -j5
+    $MAKE -j5
     check_make_ok
-    $sudo make install
+    $sudo $MAKE install
   fi
   check_make_ok
 
   echo
   echo "WiringPi Devices Library"
   cd ../devLib
-  $sudo make uninstall
+  $sudo $MAKE uninstall
   if [ x$1 = "xstatic" ]; then
-    make -j5 static
+    $MAKE -j5 static
     check_make_ok
-    $sudo make install-static
+    $sudo $MAKE install-static
   else
-    make -j5
+    $MAKE -j5
     check_make_ok
-    $sudo make install
+    $sudo $MAKE install
   fi
   check_make_ok
 
   echo
   echo "GPIO Utility"
   cd ../gpio
-  make -j5
+  $MAKE -j5
   check_make_ok
-  $sudo make install
+  $sudo $MAKE install
   check_make_ok
 
 # echo
 # echo "wiringPi Daemon"
 # cd ../wiringPiD
-# make -j5
+# $MAKE -j5
 # check_make_ok
-# $sudo make install
+# $sudo $MAKE install
 # check_make_ok
 
 # echo
 # echo "Examples"
 # cd ../examples
-# make
+# $MAKE
 # cd ..
 
 echo
